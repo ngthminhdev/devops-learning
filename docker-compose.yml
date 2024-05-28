@@ -1,0 +1,36 @@
+version: '3.1'
+services:
+  frontend: 
+    image: ngthminhdev/devops-frontend:${TAG}
+    build: ./frontend
+    ports:
+      - "80:80"
+    networks:
+      - team3_network
+  
+  backend:
+    image: ngthminhdev/devops-backend:${TAG}
+    build: ./backend
+    ports:
+      - "3000:3000"
+    networks:
+      - team3_network
+    depends_on:
+      - db
+  
+  db:
+    image: mariadb:11.3
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=team3
+    volumes:
+      - team3_db_volume:/var/lib/mysql
+    networks:
+      - team3_network
+
+networks:
+  team3_network:
+
+volumes:
+  team3_db_volume:
