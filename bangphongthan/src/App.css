@@ -1,0 +1,50 @@
+#root {
+  height: 98vh;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+}
+
+.section {
+  align-items: center;
+  display: flex;
+  width: 100%;
+  background-image: url(./assets/bg1.jpeg);
+  background-size: cover;
+  justify-content: center;
+}
+
+.header {
+  padding: 16px;
+}
+
+.text {
+  color: #333;
+}
+
+.title {
+  font-size: 24px;
+}
+
+.ant-form-item-explain-error {
+  display: flex;
+}
+
+.container {
+  width: 320px;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.login {
+  display: flex;
+  justify-content: center;
+}
+.title {
+  margin: 16px;
+}
+.box-main {
+  width: 100%;
+  margin: 0px 128px;
+}

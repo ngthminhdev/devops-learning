@@ -8,44 +8,59 @@ services:
       - team3_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://ditre"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 1s
 
-  # bangphongthan: 
-  #   image: ngthminhdev/devops-bangphongthan:${TAG}
-  #   build: ./ditre
-  #   networks:
-  #     - team3_network
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://bangphongthan"]
-  #     interval: 15s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 10s
+  bangphongthan: 
+    image: ngthminhdev/devops-bangphongthan:${TAG}
+    build: ./bangphongthan
+    networks:
+      - team3_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://bangphongthan"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 1s
     
 
-  # db:
-  #   image: mariadb:11.3
-  #   ports:
-  #     - "3306:3306"
-  #   environment:
-  #     - MARIADB_ROOT_PASSWORD=team3
-  #   volumes:
-  #     - team3_db_volume:/var/lib/mysql
-  #   networks:
-  #     - team3_network
+  db:
+    image: mariadb:11.3
+    # ports:
+    #   - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=team3
+    volumes:
+      - team3_db_volume:/var/lib/mysql
+    networks:
+      - team3_network
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://db:3306"]
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 3
+    #   start_period: 10s
       
-  # backend:
-  #   image: ngthminhdev/devops-backend:${TAG}
-  #   build: ./backend
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - team3_network
-  #   depends_on:
-  #     - db
+      
+  backend:
+    image: ngthminhdev/devops-backend:${TAG}
+    build: ./backend
+    # ports:
+    #   - "3000:3000"
+    networks:
+      - team3_network
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+    # healthcheck:
+      # test: ["CMD", "curl", "-f", "http://backend"]
+      # interval: 15s
+      # timeout: 5s
+      # retries: 3
+      # start_period: 10s
+
     
   nginx:
     image: ngthminhdev/devops-nginx:${TAG}
@@ -53,10 +68,15 @@ services:
     ports:
       - "80:80"
     depends_on:
-        ditre:
-          condition: service_healthy
+      ditre:
+        condition: service_healthy
+      bangphongthan:
+        condition: service_healthy
+      # backend:
+        # condition: service_healthy
+      # db:
+        # condition: service_healthy
 
-      # - bangphongthan
     networks:
       - team3_network
 
