@@ -61,9 +61,10 @@ services:
       - MARIADB_ROOT_PASSWORD=team3
     volumes:
       - team3_db_volume:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
     networks:
       - team3_network
-      
       
   backend:
     scale: 2
