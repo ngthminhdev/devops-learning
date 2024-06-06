@@ -1,10 +1,13 @@
-import { Button, Input, Image } from "antd";
+import { Button, Input, Image, message } from "antd";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import timeBg from "./assets/time.jpeg";
 import "./App.css"; // Create and import a CSS file for styling
 
 const Home = () => {
   const [dateTime, setDateTime] = useState(new Date());
+  const [minutesLate, setMinutesLate] = useState(""); // State để lưu giá trị input
+  const [username, setUsername] = useState(""); // State để lưu username
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -12,6 +15,13 @@ const Home = () => {
     }, 1000);
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
   }, []);
 
   const getMyDay = (day: number) => {
@@ -33,6 +43,25 @@ const Home = () => {
   const mi = d.getMinutes();
   const s = d.getSeconds();
 
+  const handleSubmit = async () => {
+    if (!username) {
+      message.error("Username not found in local storage");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://api.localhost/api/di-tre", {
+        username,
+        time: minutesLate,
+      });
+      console.log(response);
+      message.success("Data submitted successfully");
+    } catch (error) {
+      console.error("Error submitting data: ", error);
+      message.error("Failed to submit data");
+    }
+  };
+
   return (
     <>
       <div className="box-time">
@@ -43,13 +72,16 @@ const Home = () => {
           {getMyH(h)} : {getMyH(mi)} : {getMyH(s)}
         </div>
         <div className="info">
-          <div>Tên nhân viên: Minh Dev</div>
+          <div>Tên nhân viên: {username || "N/A"}</div>
           <div>Mã nhân viên: SC00001</div>
         </div>
         <div className="form">
-          {" "}
-          <Input placeholder="Số phút" />
-          <Button type="primary" htmlType="submit">
+          <Input
+            placeholder="Số phút"
+            value={minutesLate}
+            onChange={(e) => setMinutesLate(e.target.value)}
+          />
+          <Button type="primary" htmlType="submit" onClick={handleSubmit}>
             Submit
           </Button>
         </div>

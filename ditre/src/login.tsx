@@ -1,13 +1,37 @@
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Row, Typography } from "antd";
+import { Button, Form, Input, Row, Typography, message } from "antd";
 import "./App.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const { Text, Title, Link } = Typography;
 
 const Login = () => {
+  const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
+  const onFinish = async (values: any) => {
+    try {
+      const response = await axios.post("http://api.localhost/api/login", {
+        username: values.username,
+        password: values.password,
+      });
+
+      if (response.data && response.data.token) {
+        // Lưu token vào local storage
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("username", response.data.username);
+        message.success("Login success");
+        navigate("/");
+      } else {
+        message.error("Login failed: No token received.");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Login error: ", error);
+      message.error(
+        "Login failed: " + (error.response?.data?.message || error.message)
+      );
+    }
   };
 
   return (
@@ -49,16 +73,16 @@ const Login = () => {
           requiredMark="optional"
         >
           <Form.Item
-            name="email"
+            name="username"
             rules={[
               {
-                type: "email",
+                type: "string",
                 required: true,
-                message: "Please input your Email!",
+                message: "Please input your username!",
               },
             ]}
           >
-            <Input prefix={<MailOutlined />} placeholder="Email" />
+            <Input prefix={<MailOutlined />} placeholder="Username" />
           </Form.Item>
           <Form.Item
             name="password"

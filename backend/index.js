@@ -9,7 +9,7 @@ const app = express();
 const port = 3000;
 const secretKey = "team3-secret-key";
 const corsOptions = {
-  origin: "http://0.0.0.0",
+  origin: ["http://ditre.localhost", "http://bangphongthan.localhost"],
   // optionsSuccessStatus: 200
 };
 
@@ -35,12 +35,21 @@ async function initializeDatabase() {
       conn = await pool.getConnection();
       await conn.query("CREATE DATABASE IF NOT EXISTS team3");
       await conn.query("USE team3");
+
       await conn.query(`CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      username VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL
-    )`);
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        password VARCHAR(255) NOT NULL
+      )`);
       console.info("Created table team3.users!");
+
+      await conn.query(`CREATE TABLE IF NOT EXISTS ditre (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        time INT NOT NULL
+      )`);
+      console.info("Created table team3.ditre!");
+
       isConnected = true;
     }
   } catch (err) {
@@ -105,10 +114,59 @@ app.post("/api/login", async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: "1h" });
-    res.json({ token });
+    res.json({ username, token });
   } catch (err) {
     console.log(err);
     res.status(500).send({ message: "Error logging in" });
+  }
+});
+
+app.post("/api/di-tre", async (req, res) => {
+  const { username, time } = req.body;
+  try {
+    const conn = await pool.getConnection();
+    const rows = await conn.query("SELECT * FROM ditre WHERE username = ?", [
+      username,
+    ]);
+    conn.release();
+
+    if (rows.length === 0) {
+      const conn = await pool.getConnection();
+      const result = await conn.query(
+        "INSERT INTO ditre (username, time) VALUES (?, ?)",
+        [username, time]
+      );
+      conn.release();
+      return res.status(201).json({ message: "OK" });
+    }
+
+    const user = rows[0];
+    const newTime = user.time + +time;
+    const conn2 = await pool.getConnection();
+    const result = await conn.query(
+      "UPDATE ditre  SET time = ? WHERE username = ?",
+      [newTime, username]
+    );
+    conn2.release();
+
+    return res.status(200).json({ message: "OK" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: "Error ditre" });
+  }
+});
+
+app.get("/api/list", async (req, res) => {
+  console.log(`Received a request ::: ${new Date().toLocaleString()}`)
+
+  try {
+    const conn = await pool.getConnection();
+    const rows = await conn.query("SELECT * FROM ditre ORDER BY time DESC");
+    conn.release();
+    res.status(200).json({ data: rows });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err });
   }
 });
 

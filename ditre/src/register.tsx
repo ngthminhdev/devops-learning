@@ -1,13 +1,30 @@
 import { LockOutlined, MailOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Row, Typography } from "antd";
+import { Button, Form, Input, Row, Typography, message } from "antd";
 import "./App.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const { Text, Title, Link } = Typography;
 
 const Register = () => {
+  const navigate = useNavigate();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
+  const onFinish = async (values: any) => {
+    try {
+      await axios.post("http://api.localhost/api/register", {
+        username: values.username,
+        password: values.password,
+      });
+
+      message.success("Register success");
+      navigate("/login");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Register error: ", error);
+      message.error(
+        "Register failed: " + (error.response?.data?.message || error.message)
+      );
+    }
   };
 
   return (
@@ -49,16 +66,16 @@ const Register = () => {
           requiredMark="optional"
         >
           <Form.Item
-            name="email"
+            name="username"
             rules={[
               {
-                type: "email",
+                type: "string",
                 required: true,
-                message: "Please input your Email!",
+                message: "Please input your username!",
               },
             ]}
           >
-            <Input prefix={<MailOutlined />} placeholder="Email" />
+            <Input prefix={<MailOutlined />} placeholder="Username" />
           </Form.Item>
           <Form.Item
             name="password"
