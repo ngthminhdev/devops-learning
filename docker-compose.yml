@@ -4,6 +4,20 @@ services:
   ditre: 
     image: ngthminhdev/devops-ditre:${TAG}
     build: ./ditre
+    hostname: ditre
+    networks:
+      - team3_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://ditre"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 1s
+
+  ditre2: 
+    image: ngthminhdev/devops-ditre:${TAG}
+    build: ./ditre
+    hostname: ditre2
     networks:
       - team3_network
     healthcheck:
@@ -16,6 +30,20 @@ services:
   bangphongthan: 
     image: ngthminhdev/devops-bangphongthan:${TAG}
     build: ./bangphongthan
+    hostname: bangphongthan
+    networks:
+      - team3_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://bangphongthan"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 1s
+
+  bangphongthan2: 
+    image: ngthminhdev/devops-bangphongthan:${TAG}
+    build: ./bangphongthan
+    hostname: bangphongthan2
     networks:
       - team3_network
     healthcheck:
@@ -39,6 +67,15 @@ services:
       
   backend:
     scale: 2
+    hostname: backend
+    image: ngthminhdev/devops-backend:${TAG}
+    build: ./backend
+    networks:
+      - team3_network
+  
+  backend2:
+    scale: 2
+    hostname: backend2
     image: ngthminhdev/devops-backend:${TAG}
     build: ./backend
     networks:
