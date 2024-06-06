@@ -55,14 +55,14 @@ services:
 
   db:
     image: mariadb:11.3
+    hostname: db
     ports:
       - "3306:3306"
     environment:
       - MARIADB_ROOT_PASSWORD=team3
     volumes:
-      - team3_db_volume:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-
+      - team3_db_volume:/var/lib/mysql
     networks:
       - team3_network
       
@@ -71,6 +71,8 @@ services:
     hostname: backend
     image: ngthminhdev/devops-backend:${TAG}
     build: ./backend
+    depends_on:
+    - db
     networks:
       - team3_network
   
@@ -79,6 +81,8 @@ services:
     hostname: backend2
     image: ngthminhdev/devops-backend:${TAG}
     build: ./backend
+    depends_on:
+    - db
     networks:
       - team3_network
 
